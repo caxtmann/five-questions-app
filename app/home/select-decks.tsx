@@ -1,75 +1,172 @@
 import LinearBackgroundView from "@/components/LinearBackgroundView";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {Button, Heading, Text, View, XStack, YStack} from "tamagui";
-import {useAppDispatch, useAppSelector} from "@/store/hooks";
-import {selectAllCategoryDecks} from "@/store/app/app.selectors";
-import {useState} from "react";
-import {FlatList} from "react-native";
-import {setSelectedCategoryDecks} from "@/store/app/app.slice";
-import {router} from "expo-router";
+import { selectAllCategoryDecks } from "@/store/app/app.selectors";
+import { setSelectedCategoryDecks } from "@/store/app/app.slice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { router } from "expo-router";
+import { useState } from "react";
+import { FlatList, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Button,
+  Card,
+  Circle,
+  Heading,
+  Text,
+  View,
+  XStack,
+  YStack,
+} from "tamagui";
 
 export default function SelectDecksScreen() {
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    /** STORE **/
-    const decks = useAppSelector(selectAllCategoryDecks);
+  /** STORE **/
+  const decks = useAppSelector(selectAllCategoryDecks);
 
-    /** STATE **/
-    const [selectedCategoryDeckIds, setSelectedCategoryDeckIds] = useState<string[]>([]);
+  /** STATE **/
+  const [selectedCategoryDeckIds, setSelectedCategoryDeckIds] = useState<
+    string[]
+  >([]);
 
-    /** HANDLERS **/
-    const deckPressHandler = (deckId: string) => {
-        if (selectedCategoryDeckIds.includes(deckId)) {
-            setSelectedCategoryDeckIds(prevState => prevState.filter(id => id !== deckId));
-        } else {
-            setSelectedCategoryDeckIds(prevState => [...prevState, deckId]);
-        }
+  /** HANDLERS **/
+  const deckPressHandler = (deckId: string) => {
+    if (selectedCategoryDeckIds.includes(deckId)) {
+      setSelectedCategoryDeckIds((prevState) =>
+        prevState.filter((id) => id !== deckId)
+      );
+    } else {
+      setSelectedCategoryDeckIds((prevState) => [...prevState, deckId]);
     }
+  };
 
-    const startGameHandler = () => {
-        dispatch(setSelectedCategoryDecks(selectedCategoryDeckIds));
-        router.replace('/game');
-    }
+  const startGameHandler = () => {
+    dispatch(setSelectedCategoryDecks(selectedCategoryDeckIds));
+    router.replace("/game");
+  };
 
-    return (
-        <LinearBackgroundView>
-            <SafeAreaView style={{flex: 1}}>
-                <YStack flex={1} gap={12} paddingHorizontal={12}>
-                    <YStack>
-                        <Heading>Karten-Decks</Heading>
-                        <Text>Wähle die Decks aus die du gerne verwenden möchtest</Text>
+  const isSelected = (deckId: string) =>
+    selectedCategoryDeckIds.includes(deckId);
+
+  return (
+    <LinearBackgroundView>
+      <SafeAreaView style={styles.container}>
+        <YStack flex={1} padding="$4" gap="$4">
+          <YStack gap="$2" paddingBottom="$2">
+            <Heading size="$9" fontWeight="bold" color="$color12">
+              Karten-Decks
+            </Heading>
+            <Text fontSize="$5" color="$color11">
+              Wähle die Decks aus, die du verwenden möchtest
+            </Text>
+          </YStack>
+
+          <FlatList
+            style={styles.list}
+            contentContainerStyle={styles.listContent}
+            data={decks}
+            keyExtractor={(deck) => deck.id}
+            renderItem={({ item }) => {
+              const selected = isSelected(item.id);
+              return (
+                <Card
+                  onPress={() => deckPressHandler(item.id)}
+                  backgroundColor={selected ? "$color5" : "$color3"}
+                  borderWidth={2}
+                  borderColor={selected ? "$color9" : "$color5"}
+                  borderRadius="$4"
+                  padding="$4"
+                  animation="quick"
+                  pressStyle={{ scale: 0.98, opacity: 0.9 }}
+                  cursor="pointer"
+                >
+                  <XStack alignItems="center" gap="$4" flex={1}>
+                    <YStack
+                      backgroundColor={selected ? "$color9" : "$color5"}
+                      borderRadius="$6"
+                      width={60}
+                      height={60}
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontSize={32}>{item.icon}</Text>
                     </YStack>
-                    <FlatList
-                        style={{flex: 1}}
-                        data={decks}
-                        keyExtractor={deck => deck.id}
-                        renderItem={({item}) => (
-                            <XStack
-                                key={item.id}
-                                onPress={() => deckPressHandler(item.id)}
-                                padding={20}
-                                borderWidth={2}
-                                borderRadius={10}
-                                borderColor={selectedCategoryDeckIds.includes(item.id) ? 'cyan' : 'rgba(255, 255, 255, 0.1)'}
-                                alignItems={'center'}
-                                gap={12}
+
+                    <YStack flex={1} gap="$1">
+                      <XStack alignItems="center" gap="$2">
+                        <Text
+                          fontSize="$6"
+                          fontWeight="600"
+                          color="$color12"
+                          flex={1}
+                        >
+                          {item.name}
+                        </Text>
+                        {selected && (
+                          <Circle
+                            size={24}
+                            backgroundColor="$color9"
+                            alignItems="center"
+                            justifyContent="center"
+                          >
+                            <Text
+                              color="$color1"
+                              fontSize="$3"
+                              fontWeight="bold"
                             >
-                                <Text fontSize={32}>{item.icon}</Text>
-                                <YStack gap={6}>
-                                    <Text fontSize={18} fontWeight={'600'}>{item.name}</Text>
-                                    <Text>{item.description}</Text>
-                                </YStack>
-                            </XStack>
+                              ✓
+                            </Text>
+                          </Circle>
                         )}
-                        ItemSeparatorComponent={() => <View style={{height: 10}}/>}
-                    />
-                    <Button
-                        onPress={startGameHandler}
-                        disabled={selectedCategoryDeckIds.length === 0}
-                        opacity={selectedCategoryDeckIds.length === 0 ? 0.5 : 1}
-                    >Spiel starten</Button>
-                </YStack>
-            </SafeAreaView>
-        </LinearBackgroundView>
-    )
+                      </XStack>
+                      <Text fontSize="$4" color="$color11" numberOfLines={2}>
+                        {item.description}
+                      </Text>
+                    </YStack>
+                  </XStack>
+                </Card>
+              );
+            }}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            showsVerticalScrollIndicator={false}
+          />
+
+          <YStack paddingTop="$2">
+            <Button
+              size="$5"
+              backgroundColor="$color9"
+              color="$color1"
+              fontWeight="600"
+              fontSize="$6"
+              height={60}
+              borderRadius="$6"
+              pressStyle={{ scale: 0.97, opacity: 0.8 }}
+              onPress={startGameHandler}
+              disabled={selectedCategoryDeckIds.length === 0}
+              opacity={selectedCategoryDeckIds.length === 0 ? 0.5 : 1}
+              animation="quick"
+            >
+              {selectedCategoryDeckIds.length > 0
+                ? `Spiel starten (${selectedCategoryDeckIds.length})`
+                : "Wähle mindestens ein Deck"}
+            </Button>
+          </YStack>
+        </YStack>
+      </SafeAreaView>
+    </LinearBackgroundView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingBottom: 8,
+  },
+  separator: {
+    height: 12,
+  },
+});
