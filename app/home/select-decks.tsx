@@ -1,6 +1,6 @@
 import LinearBackgroundView from "@/components/LinearBackgroundView";
 import {SafeAreaView} from "react-native-safe-area-context";
-import {Heading, Text, View, XStack, YStack} from "tamagui";
+import {Button, Heading, Text, View, XStack, YStack} from "tamagui";
 import {useAppSelector} from "@/store/hooks";
 import {selectAllCategoryDecks} from "@/store/app/app.selectors";
 import {useState} from "react";
@@ -27,7 +27,10 @@ export default function SelectDecksScreen() {
         <LinearBackgroundView>
             <SafeAreaView style={{ flex: 1}}>
                 <YStack flex={1} gap={12} paddingHorizontal={12}>
-                    <Heading>SelectDecks</Heading>
+                    <YStack>
+                        <Heading>Karten-Decks</Heading>
+                        <Text>Wähle die Decks aus die du gerne verwenden möchtest</Text>
+                    </YStack>
                     <FlatList
                         style={{flex: 1}}
                         data={decks}
@@ -52,6 +55,10 @@ export default function SelectDecksScreen() {
                         )}
                         ItemSeparatorComponent={() => <View style={{height: 10}} />}
                     />
+                    <Button
+                        disabled={selectedCategoryDeckIds.length === 0}
+                        opacity={selectedCategoryDeckIds.length === 0 ? 0.5 : 1}
+                    >Spiel starten</Button>
                 </YStack>
             </SafeAreaView>
         </LinearBackgroundView>
