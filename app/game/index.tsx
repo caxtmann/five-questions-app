@@ -105,7 +105,11 @@ export default function GameScreen() {
       <SafeAreaView style={styles.container}>
         <YStack flex={1} padding="$4" gap="$6" justifyContent="space-between">
           {/* Header mit Close Button */}
-          <XStack justifyContent="space-between" alignItems="center" paddingTop="$2">
+          <XStack
+            justifyContent="space-between"
+            alignItems="center"
+            paddingTop="$2"
+          >
             <XStack flex={1} />
             {/* Fortschrittsanzeige */}
             <XStack flex={1} justifyContent="center">
