@@ -25,7 +25,7 @@ export default function SelectDecksScreen() {
 
     return (
         <LinearBackgroundView>
-            <SafeAreaView style={{ flex: 1}}>
+            <SafeAreaView style={{flex: 1}}>
                 <YStack flex={1} gap={12} paddingHorizontal={12}>
                     <YStack>
                         <Heading>Karten-Decks</Heading>
@@ -40,9 +40,9 @@ export default function SelectDecksScreen() {
                                 key={item.id}
                                 onPress={() => deckPressHandler(item.id)}
                                 padding={20}
-                                borderWidth={1}
+                                borderWidth={2}
                                 borderRadius={10}
-                                borderColor={selectedCategoryDeckIds.includes(item.id) ? 'cyan' : 'transparent'}
+                                borderColor={selectedCategoryDeckIds.includes(item.id) ? 'cyan' : 'rgba(255, 255, 255, 0.1)'}
                                 alignItems={'center'}
                                 gap={12}
                             >
@@ -53,7 +53,7 @@ export default function SelectDecksScreen() {
                                 </YStack>
                             </XStack>
                         )}
-                        ItemSeparatorComponent={() => <View style={{height: 10}} />}
+                        ItemSeparatorComponent={() => <View style={{height: 10}}/>}
                     />
                     <Button
                         disabled={selectedCategoryDeckIds.length === 0}
