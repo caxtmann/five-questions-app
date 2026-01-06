@@ -1,10 +1,13 @@
 import LinearBackgroundView from "@/components/LinearBackgroundView";
-import { selectAllCategoryDecks } from "@/store/app/app.selectors";
+import {
+  selectAllCategoryDecks,
+  selectAllQuestions,
+} from "@/store/app/app.selectors";
 import { setSelectedCategoryDecks } from "@/store/app/app.slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectUserDto } from "@/store/user/user.selectors";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -22,8 +25,22 @@ export default function SelectDecksScreen() {
   const dispatch = useAppDispatch();
 
   /** STORE **/
-  const decks = useAppSelector(selectAllCategoryDecks);
+  const allDecks = useAppSelector(selectAllCategoryDecks);
+  const allQuestions = useAppSelector(selectAllQuestions);
   const userDto = useAppSelector(selectUserDto);
+
+  /** COMPUTED **/
+  // Sortiere Decks: zuerst kostenlose, dann Premium
+  const decks = useMemo(() => {
+    return [...allDecks].sort((a, b) => {
+      // Kostenlose Decks zuerst (premium: false = 0, premium: true = 1)
+      if (a.premium !== b.premium) {
+        return a.premium ? 1 : -1;
+      }
+      // Bei gleichem Premium-Status alphabetisch nach Name sortieren
+      return a.name.localeCompare(b.name);
+    });
+  }, [allDecks]);
 
   /** STATE **/
   const [selectedCategoryDeckIds, setSelectedCategoryDeckIds] = useState<
@@ -55,6 +72,12 @@ export default function SelectDecksScreen() {
     selectedCategoryDeckIds.includes(deckId);
 
   const isLocked = (isPremium: boolean) => isPremium && !userDto?.isPremium;
+
+  // Anzahl der Fragen pro Kategorie berechnen
+  const getQuestionCount = (category: string) => {
+    return allQuestions.filter((question) => question.category === category)
+      .length;
+  };
 
   return (
     <LinearBackgroundView>
@@ -148,6 +171,9 @@ export default function SelectDecksScreen() {
                       </XStack>
                       <Text fontSize="$4" color="$color11" numberOfLines={2}>
                         {item.description}
+                      </Text>
+                      <Text fontSize="$3" color="$color10" marginTop="$1">
+                        {getQuestionCount(item.category)} Fragen
                       </Text>
                     </YStack>
                   </XStack>
