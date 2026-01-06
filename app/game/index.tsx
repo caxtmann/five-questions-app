@@ -64,12 +64,20 @@ export default function GameScreen() {
     }
   };
 
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      // Vorherige Frage
+      setCurrentQuestionIndex((prev) => prev - 1);
+    }
+  };
+
   // Wenn keine Frage vorhanden, nichts rendern (wird durch useEffect navigiert)
   if (!currentQuestion || filteredQuestions.length === 0) {
     return null;
   }
 
   const isLastQuestion = currentQuestionIndex === filteredQuestions.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 0;
 
   return (
     <LinearBackgroundView>
@@ -104,18 +112,35 @@ export default function GameScreen() {
 
             {/* Frage */}
             <Heading
-              size="$10"
+              fontSize={32}
+              lineHeight={40}
+              letterSpacing={0}
               fontWeight="bold"
               color="$color12"
               textAlign="center"
-              lineHeight="$1"
             >
               {currentQuestion.question}
             </Heading>
           </YStack>
 
-          {/* Weiter Button */}
-          <YStack paddingBottom="$4">
+          {/* Navigation Buttons */}
+          <YStack paddingBottom="$4" gap="$3">
+            {!isFirstQuestion && (
+              <Button
+                size="$5"
+                backgroundColor="$color5"
+                color="$color12"
+                fontWeight="600"
+                fontSize="$5"
+                height={50}
+                borderRadius="$6"
+                pressStyle={{ scale: 0.97, opacity: 0.8 }}
+                onPress={handlePreviousQuestion}
+                animation="quick"
+              >
+                Zurück
+              </Button>
+            )}
             <Button
               size="$5"
               backgroundColor="$color9"
