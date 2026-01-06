@@ -25,6 +25,7 @@ export async function createUserInDB(
         const userWithId: UserDto = {
             id: newDocRef.id,
             createdAt: new Date().toISOString(),
+            isPremium: false,
         };
         await setDoc(newDocRef, userWithId);
         return userWithId;
