@@ -1,12 +1,15 @@
 import LinearBackgroundView from "@/components/LinearBackgroundView";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {Button, Heading, Text, View, XStack, YStack} from "tamagui";
-import {useAppSelector} from "@/store/hooks";
+import {useAppDispatch, useAppSelector} from "@/store/hooks";
 import {selectAllCategoryDecks} from "@/store/app/app.selectors";
 import {useState} from "react";
 import {FlatList} from "react-native";
+import {setSelectedCategoryDecks} from "@/store/app/app.slice";
+import {router} from "expo-router";
 
 export default function SelectDecksScreen() {
+    const dispatch = useAppDispatch();
 
     /** STORE **/
     const decks = useAppSelector(selectAllCategoryDecks);
@@ -21,6 +24,11 @@ export default function SelectDecksScreen() {
         } else {
             setSelectedCategoryDeckIds(prevState => [...prevState, deckId]);
         }
+    }
+
+    const startGameHandler = () => {
+        dispatch(setSelectedCategoryDecks(selectedCategoryDeckIds));
+        router.replace('/game');
     }
 
     return (
@@ -56,6 +64,7 @@ export default function SelectDecksScreen() {
                         ItemSeparatorComponent={() => <View style={{height: 10}}/>}
                     />
                     <Button
+                        onPress={startGameHandler}
                         disabled={selectedCategoryDeckIds.length === 0}
                         opacity={selectedCategoryDeckIds.length === 0 ? 0.5 : 1}
                     >Spiel starten</Button>
