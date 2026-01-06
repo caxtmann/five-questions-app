@@ -5,6 +5,7 @@ export interface QuestionDto {
     question: string;
 
     category: QuestionCategory;
+    premium: boolean;
 
     metaData: {
         episode: number;

@@ -6,6 +6,7 @@ export const questions: QuestionDto[] = [
         id: '1',
         question: 'Wie geht es dir heute?',
         category: QuestionCategory.HISTORY,
+        premium: false,
         metaData: {
             episode: 1,
             year: 2017,
