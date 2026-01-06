@@ -8,7 +8,7 @@ import { resetSelectedCategoryDecks } from "@/store/app/app.slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { StyleSheet } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Heading, Text, XStack, YStack } from "tamagui";
 
@@ -71,6 +71,27 @@ export default function GameScreen() {
     }
   };
 
+  const handleCloseGame = () => {
+    Alert.alert(
+      "Spiel verlassen?",
+      "Möchtest du das Spiel wirklich verlassen? Dein Fortschritt geht verloren.",
+      [
+        {
+          text: "Abbrechen",
+          style: "cancel",
+        },
+        {
+          text: "Verlassen",
+          style: "destructive",
+          onPress: () => {
+            dispatch(resetSelectedCategoryDecks());
+            router.replace("/home");
+          },
+        },
+      ]
+    );
+  };
+
   // Wenn keine Frage vorhanden, nichts rendern (wird durch useEffect navigiert)
   if (!currentQuestion || filteredQuestions.length === 0) {
     return null;
@@ -83,11 +104,31 @@ export default function GameScreen() {
     <LinearBackgroundView>
       <SafeAreaView style={styles.container}>
         <YStack flex={1} padding="$4" gap="$6" justifyContent="space-between">
-          {/* Fortschrittsanzeige */}
-          <XStack justifyContent="center" paddingTop="$2">
-            <Text fontSize="$4" color="$color11">
-              Frage {currentQuestionIndex + 1} von {filteredQuestions.length}
-            </Text>
+          {/* Header mit Close Button */}
+          <XStack justifyContent="space-between" alignItems="center" paddingTop="$2">
+            <XStack flex={1} />
+            {/* Fortschrittsanzeige */}
+            <XStack flex={1} justifyContent="center">
+              <Text fontSize="$4" color="$color11">
+                Frage {currentQuestionIndex + 1} von {filteredQuestions.length}
+              </Text>
+            </XStack>
+            {/* Close Button */}
+            <XStack flex={1} justifyContent="flex-end">
+              <Button
+                size="$3"
+                circular
+                backgroundColor="$color5"
+                color="$color12"
+                pressStyle={{ scale: 0.95, opacity: 0.8 }}
+                onPress={handleCloseGame}
+                animation="quick"
+                width={36}
+                height={36}
+              >
+                ✕
+              </Button>
+            </XStack>
           </XStack>
 
           {/* Frage und Kategorie */}
