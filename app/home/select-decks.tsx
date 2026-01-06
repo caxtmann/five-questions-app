@@ -2,6 +2,7 @@ import LinearBackgroundView from "@/components/LinearBackgroundView";
 import { selectAllCategoryDecks } from "@/store/app/app.selectors";
 import { setSelectedCategoryDecks } from "@/store/app/app.slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { selectUserDto } from "@/store/user/user.selectors";
 import { router } from "expo-router";
 import { useState } from "react";
 import { FlatList, StyleSheet } from "react-native";
@@ -22,6 +23,7 @@ export default function SelectDecksScreen() {
 
   /** STORE **/
   const decks = useAppSelector(selectAllCategoryDecks);
+  const userDto = useAppSelector(selectUserDto);
 
   /** STATE **/
   const [selectedCategoryDeckIds, setSelectedCategoryDeckIds] = useState<
@@ -29,7 +31,12 @@ export default function SelectDecksScreen() {
   >([]);
 
   /** HANDLERS **/
-  const deckPressHandler = (deckId: string) => {
+  const deckPressHandler = (deckId: string, isPremium: boolean) => {
+    // Prevent selection if deck is premium and user is not premium
+    if (isPremium && !userDto?.isPremium) {
+      return;
+    }
+
     if (selectedCategoryDeckIds.includes(deckId)) {
       setSelectedCategoryDeckIds((prevState) =>
         prevState.filter((id) => id !== deckId)
@@ -46,6 +53,8 @@ export default function SelectDecksScreen() {
 
   const isSelected = (deckId: string) =>
     selectedCategoryDeckIds.includes(deckId);
+
+  const isLocked = (isPremium: boolean) => isPremium && !userDto?.isPremium;
 
   return (
     <LinearBackgroundView>
@@ -67,17 +76,20 @@ export default function SelectDecksScreen() {
             keyExtractor={(deck) => deck.id}
             renderItem={({ item }) => {
               const selected = isSelected(item.id);
+              const locked = isLocked(item.premium);
               return (
                 <Card
-                  onPress={() => deckPressHandler(item.id)}
+                  onPress={() => deckPressHandler(item.id, item.premium)}
                   backgroundColor={selected ? "$color5" : "$color3"}
                   borderWidth={2}
                   borderColor={selected ? "$color9" : "$color5"}
                   borderRadius="$4"
                   padding="$4"
                   animation="quick"
-                  pressStyle={{ scale: 0.98, opacity: 0.9 }}
-                  cursor="pointer"
+                  pressStyle={locked ? {} : { scale: 0.98, opacity: 0.9 }}
+                  cursor={locked ? "not-allowed" : "pointer"}
+                  opacity={locked ? 0.6 : 1}
+                  disabled={locked}
                 >
                   <XStack alignItems="center" gap="$4" flex={1}>
                     <YStack
@@ -87,6 +99,7 @@ export default function SelectDecksScreen() {
                       height={60}
                       alignItems="center"
                       justifyContent="center"
+                      opacity={locked ? 0.7 : 1}
                     >
                       <Text fontSize={32}>{item.icon}</Text>
                     </YStack>
@@ -101,7 +114,22 @@ export default function SelectDecksScreen() {
                         >
                           {item.name}
                         </Text>
-                        {selected && (
+                        {locked ? (
+                          <Circle
+                            size={24}
+                            backgroundColor="$color8"
+                            alignItems="center"
+                            justifyContent="center"
+                          >
+                            <Text
+                              color="$color12"
+                              fontSize="$3"
+                              fontWeight="bold"
+                            >
+                              🔒
+                            </Text>
+                          </Circle>
+                        ) : selected ? (
                           <Circle
                             size={24}
                             backgroundColor="$color9"
@@ -116,7 +144,7 @@ export default function SelectDecksScreen() {
                               ✓
                             </Text>
                           </Circle>
-                        )}
+                        ) : null}
                       </XStack>
                       <Text fontSize="$4" color="$color11" numberOfLines={2}>
                         {item.description}
